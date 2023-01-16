@@ -1,0 +1,39 @@
+﻿@page "/loginn"
+@using Blazor.Extensions.Storage;
+@using BlazorNorthwindUI.Models;
+@using BlazorNorthwindUI.Services;
+@inject HttpClient Http;
+@inject IAuthService AuthService;
+@inject NavigationManager NavigationManager
+@*@inject LocalStorage LocalStorage
+@inject SessionStorage sessionStorage*@
+@inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
+
+
+
+<h3>Loginn</h3>
+<EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
+    <DataAnnotationsValidator />
+    @*<ValidationSummary />*@
+    <div class="form-group">
+        <InputText Placeholder="E-mail" Class="form-control" Id="email" @bind-Value="@loginModel.Email" />
+        <ValidationMessage For="@(()=>loginModel.Email)" />
+    </div>
+    <div class="form-group">
+        <InputText Placeholder="Password" Class="form-control" Id="password" @bind-Value="@loginModel.Password" />
+        <ValidationMessage For="@(()=>loginModel.Password)" />
+    </div>
+
+
+    <button class="btn btn-primary" type="submit">Giriş</button>
+
+</EditForm>
+
+@code {
+    LoginModel loginModel = new LoginModel();
+
+    private async Task HandleLogin()
+    {
+        await AuthService.Login(loginModel);
+    }
+}

@@ -1,0 +1,75 @@
+﻿@page "/productdetail/{productid:int}"
+@using BlazorNorthwindUI.Models;
+@using BlazorNorthwindUI.Services;
+@inject IProductService ProductService
+@inject ICategoryService CategoryService
+@inject NavigationManager NavigationManager
+
+
+@if (product != null)
+{
+    <h3>Product detail for @product.ProductName</h3>
+    <EditForm Model="@product" OnValidSubmit="@HandleSave">
+        <DataAnnotationsValidator></DataAnnotationsValidator>
+        @*<ValidationSummary></ValidationSummary>*@
+        <div class="form-group">
+            <InputText placeholder="Product Naam" class="form-control" id="productName" @bind-Value="@product.ProductName"></InputText>
+        <ValidationMessage For="@(()=>product.ProductName)"></ValidationMessage>
+        </div>
+        <div class="form-group">
+            <InputNumber placeholder="Product Prijs" class="form-control" id="unitPrice" @bind-Value="@product.UnitPrice"></InputNumber>
+            <ValidationMessage For="@(()=>product.UnitPrice)"></ValidationMessage>
+        </div>
+        <div class="form-group">
+            <InputTextArea placeholder="Product Detail" class="form-control" id="quantityPerUnit" @bind-Value="@product.QuantityPerUnit"></InputTextArea>
+            <ValidationMessage For="@(()=>product.QuantityPerUnit)"></ValidationMessage>
+        </div>
+        <div class="form-group">
+            <InputNumber placeholder="Product Stock" class="form-control" id="unitsInStock" @bind-Value="@product.UnitsInStock"></InputNumber>
+            <ValidationMessage For="@(()=>product.UnitsInStock)"></ValidationMessage>
+        </div>
+        <div class="form-group">
+            <a placeholder="Product Id" class="form-control" id="productId">Product id: @product.ProductId</a>
+        </div>
+        <div class="form-group">
+            <a placeholder="Category Id" class="form-control" id="categoryId">Category id: @product.CategoryId</a>
+        </div>
+        <div class="form-group">
+            @if (categories != null)
+            {
+                <InputSelect placeholder="Category Id" class="form-control" id="categoryId" @bind-Value="@product.CategoryId">
+                    @foreach (var category in categories)
+                    {
+                        <option value="@category.CategoryId">@category.CategoryName</option>
+                    }
+                </InputSelect>
+            }
+        </div>
+        <button class="btn btn-primary" type="submit" disabled=@IsTaskRunning>Opslaan</button>
+    </EditForm>
+}
+
+
+
+@code {
+    bool IsTaskRunning = false;
+
+
+    [Parameter]
+    public int ProductId { get; set; }
+
+    ProductViewModel product;
+    CategoryListViewModel[] categories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = await ProductService.GetProductById(ProductId);
+        categories = await CategoryService.GetCategories();
+    }
+
+    public void HandleSave()
+    {
+        ProductService.Save(product);
+        NavigationManager.NavigateTo("/productlist");
+    }
+}
